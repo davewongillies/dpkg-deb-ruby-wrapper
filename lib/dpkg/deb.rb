@@ -16,7 +16,7 @@ module Dpkg
         # <field name><colon><space><short description><newline>
         # <description>
         # The description needs to be indented by a single space and empty lines
-        # are replaced by a dot. 
+        # are replaced by a dot.
 
         fields = {}
         description = []
@@ -35,7 +35,26 @@ module Dpkg
 
         fields['Description'] << description.join("") unless fields['Description'].nil?
 
-        fields 
+        fields
+      end
+
+      def contents(package_path)
+        out = `dpkg-deb -c #{package_path}`
+        contents = []
+
+        out.each_line do |line|
+          file = {}
+          line = line.split(' ')
+
+          file[:mode]  = line[0]
+          file[:owner] = line[1]
+          file[:bytes] = line[2]
+          file[:date]  = line[3]
+          file[:time]  = line[4]
+          file[:name]  = line[5..-1]
+
+          contents << file
+        end
       end
 
     end
